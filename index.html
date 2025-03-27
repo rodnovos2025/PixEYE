@@ -1,1 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Галерея с кнопкой скачать</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: linear-gradient(135deg, #000, #001a33); font-family: Arial, sans-serif; color: white; }
+        .gallery { display: grid; gap: 10px; padding: 10px; }
+        .gallery img { width: 100%; height: auto; object-fit: cover; border-radius: 10px; opacity: 0; transition: opacity 0.5s ease; position: relative; cursor: pointer; }
+        .gallery img.loaded { opacity: 1; }
+        .download-btn { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.5); color: white; padding: 10px; border-radius: 50%; font-size: 24px; opacity: 0; transition: opacity 0.3s ease; }
+        .gallery img:hover .download-btn { opacity: 1; }
+        @media (min-width: 900px) { .gallery { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 899px) and (min-width: 600px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 599px) { .gallery { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
 
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+        const gallery = document.getElementById('gallery');
+
+        // Загрузка картинок
+        async function fetchImages() {
+            for (let i = 0; i < 6; i++) {
+                const img = document.createElement('img');
+                img.src = `https://picsum.photos/seed/${Math.random()}/1920/1080`; // Генерация случайной картинки
+                img.dataset.downloadUrl = img.src;
+
+                const downloadBtn = document.createElement('div');
+                downloadBtn.classList.add('download-btn');
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+                downloadBtn.onclick = (event) => { event.stopPropagation(); downloadImage(img.dataset.downloadUrl); };
+
+                img.appendChild(downloadBtn);
+                img.onload = () => img.classList.add('loaded');
+                gallery.appendChild(img);
+            }
+        }
+
+        // Функция для скачивания
+        function downloadImage(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = url.split('/').pop();  // Имя файла = последнее значение в URL
+            link.click();
+        }
+
+        // Прокрутка для загрузки новых картинок
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) fetchImages();
+        });
+
+        fetchImages();  // Начальная загрузка картинок
+    </script>
+
+</body>
+</html>
